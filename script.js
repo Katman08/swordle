@@ -12,10 +12,11 @@ let gameOver = false;
 let currentGuess = [];
 
 function pickSecretSword() {
-    // Each sword is 1.png to 5.png for each part
-    // Pick a random sword (same index for all parts)
-    const idx = Math.floor(Math.random() * NUM_SWORDS) + 1;
-    secretSword = PARTS.map(() => idx + ".png");
+    // Pick a random part from each category to create a mixed sword
+    secretSword = PARTS.map(part => {
+        const idx = Math.floor(Math.random() * NUM_SWORDS) + 1;
+        return {category: part, filename: `${idx}.png`};
+    });
 }
 
 function initBoard() {
@@ -51,7 +52,7 @@ function renderBoard() {
             if (r < currentRow) {
                 // For feedback, compare full part objects
                 const guessRow = board[r];
-                const answerRow = secretSword.map((f, i) => ({category: PARTS[i], filename: f}));
+                const answerRow = secretSword;
                 const feedback = getFeedback(guessRow, answerRow)[c];
                 if (feedback) cellDiv.classList.add(feedback);
             }
@@ -100,22 +101,16 @@ function renderPartsKeyboard() {
         }
     });
     pickerDiv.appendChild(grid);
-    // Backspace button
-    const backBtn = document.createElement("button");
-    backBtn.textContent = "⌫";
-    backBtn.className = "part-key";
-    backBtn.style.margin = "8px";
-    backBtn.onclick = () => {
-        if (currentGuess.length > 0) {
-            currentGuess.pop();
-            renderPartsKeyboard();
-            renderBoard();
-        }
-    };
-    pickerDiv.appendChild(backBtn);
+    // Button container
+    const buttonContainer = document.createElement("div");
+    buttonContainer.style.display = "flex";
+    buttonContainer.style.justifyContent = "center";
+    buttonContainer.style.gap = "12px";
+    buttonContainer.style.marginTop = "12px";
     // Submit button
     const submitBtn = document.createElement("button");
     submitBtn.textContent = "Submit Sword";
+    submitBtn.className = "part-key submit-btn";
     submitBtn.disabled = currentGuess.length !== 5;
     submitBtn.onclick = () => {
         if (currentGuess.length === 5) {
@@ -125,7 +120,21 @@ function renderPartsKeyboard() {
             renderBoard();
         }
     };
-    pickerDiv.appendChild(submitBtn);
+    buttonContainer.appendChild(submitBtn);
+    // Backspace button
+    const backBtn = document.createElement("button");
+    backBtn.textContent = "⌫";
+    backBtn.className = "part-key delete-btn";
+    backBtn.style.margin = "0";
+    backBtn.onclick = () => {
+        if (currentGuess.length > 0) {
+            currentGuess.pop();
+            renderPartsKeyboard();
+            renderBoard();
+        }
+    };
+    buttonContainer.appendChild(backBtn);
+    pickerDiv.appendChild(buttonContainer);
 }
 
 function showMessage(msg, type) {
@@ -181,7 +190,7 @@ function showSolutionSword() {
         const cellDiv = document.createElement("div");
         cellDiv.className = "part-cell";
         const img = document.createElement("img");
-        img.src = `sword_parts/${PARTS[i]}/${secretSword[i]}`;
+        img.src = `sword_parts/${PARTS[i]}/${secretSword[i].filename}`;
         img.alt = PARTS[i];
         cellDiv.appendChild(img);
         rowDiv.appendChild(cellDiv);
@@ -197,7 +206,7 @@ function submitSwordGuess(guess) {
     if (gameOver) return;
     // guess is an array of part objects
     board[currentRow] = currentGuess.slice();
-    const feedback = getFeedback(currentGuess, secretSword.map((f, i) => ({category: PARTS[i], filename: f})));
+    const feedback = getFeedback(currentGuess, secretSword);
     renderBoard();
     if (feedback.every(f => f === "correct")) {
         showMessage("You win!", "win");
@@ -239,4 +248,21 @@ function startGame() {
 document.addEventListener("DOMContentLoaded", () => {
     startGame();
     document.getElementById("reset-btn").addEventListener("click", startGame);
+});
+
+// Add keyboard event listener for Delete key
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Backspace" && !gameOver && currentRow < 6) {
+        if (currentGuess.length > 0) {
+            currentGuess.pop();
+            renderPartsKeyboard();
+            renderBoard();
+        }
+    }
+    if (e.key === "Enter" && !gameOver && currentRow < 6 && currentGuess.length === 5) {
+        submitSwordGuess(currentGuess);
+        currentGuess = [];
+        renderPartsKeyboard();
+        renderBoard();
+    }
 }); 

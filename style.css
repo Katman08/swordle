@@ -198,6 +198,49 @@ body {
 #reset-btn:hover {
     background: #9ca3af;
 }
+
+/* Submit and Delete button styles */
+.submit-btn,
+.delete-btn {
+    background: #818384;
+    color: #fff;
+    border: 2px solid #3a3a3c;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.submit-btn {
+    background: #538d4e;
+    border-color: #538d4e;
+}
+
+.submit-btn:hover {
+    background: #4a7c3f;
+    border-color: #4a7c3f;
+    transform: translateY(-1px);
+}
+
+.submit-btn:disabled {
+    background: #3a3a3c;
+    border-color: #3a3a3c;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.delete-btn {
+    background: #b59f3b;
+    border-color: #b59f3b;
+}
+
+.delete-btn:hover {
+    background: #a08c2f;
+    border-color: #a08c2f;
+    transform: translateY(-1px);
+}
 #solution-sword {
     display: flex;
     justify-content: center;
